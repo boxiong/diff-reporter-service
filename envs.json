@@ -1,0 +1,5 @@
+{
+  "NODE_ENV":"dev",
+  "EMAIL":"xyz@amazon.com",
+  "DOMAIN":"*"
+}

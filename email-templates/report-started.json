@@ -1,0 +1,7 @@
+{
+  "Template": {
+    "TemplateName": "ReportStartedTemplate",
+    "SubjectPart": "[Automated Data Validation] A diff report has been requested by {{Requester}}",
+    "HtmlPart": "<h4>A process has been started to compare data in the following locations</h4><table border='1'><tr><td><font color='green'>baseline</font></td><td>{{BaselineLocation}}</td></tr><tr><td><font color='FF9900'>regression</font></td><td>{{RegressionLocation}}</td></tr></table><p>Once completed, it will report the diff results at {{ReportLocation}}</p>"
+  }
+}
