@@ -13,9 +13,9 @@
 
 service: diff-reporter
 
-custom:
-  accountId: 576193502546
-  envs: ${file(envs.json)}
+plugins:
+  - serverless-step-functions
+  - serverless-pseudo-parameters
 
 # app and org for use with dashboard.serverless.com
 #app: your-app-name
@@ -69,6 +69,33 @@ provider:
 #    - exclude-me.js
 #    - exclude-me-dir/**
 
+custom:
+  accountId: 576193502546
+  envs: ${file(envs.json)}
+  region: ${self:provider.region}
+  stage: ${opt:stage, self:provider.stage}
+  prefix: ${self:service}-${self:custom.stage}
+  sqs: ${self:custom.prefix}-tasks
+
+resources:
+  Resources:
+    TasksQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: ${self:custom.sqs}
+        VisibilityTimeout: 60
+        RedrivePolicy:
+          deadLetterTargetArn:
+            Fn::GetAtt:
+            - TasksDLQ
+            - Arn
+          maxReceiveCount: 10
+    TasksDLQ:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: ${self:custom.sqs}-dlq
+        MessageRetentionPeriod: 1209600
+
 functions:
   generateRawDiffReport:
     handler: handler.generateRawDiffReport
@@ -85,7 +112,7 @@ stepFunctions:
             cors: true
             authorizer: aws_iam
       id: DiffReporterStateMachine
-      name: ${self:service}-${opt:stage}
+      name: ${self:custom.prefix}
       definition:
         Comment: "Each state uses an AWS Lambda Function"
         StartAt: FirstState
@@ -94,6 +121,20 @@ stepFunctions:
             Type: Task
             Resource:
               Fn::GetAtt: [generateRawDiffReport, Arn]
+            Next: SecondState
+          SecondState:
+            Type: Task
+            Resource: arn:aws:states:::sqs:sendMessage
+            Parameters:
+              QueueUrl: !Ref TasksQueue
+              MessageBody.$: "$.body"
+              MessageAttributes:
+                FirstAttribute:
+                  DataType: String
+                  StringValue: here we go
+                SecondAttribute:
+                  DataType: String
+                  StringValue: another attribute is on the way
             Next: wait_using_seconds
           wait_using_seconds:
             Type: Wait
@@ -106,9 +147,6 @@ stepFunctions:
             End: true
   validate: true # enable pre-deployment definition validation (disabled by default)
 
-plugins:
-  - serverless-step-functions
-  - serverless-pseudo-parameters
 
 
 
