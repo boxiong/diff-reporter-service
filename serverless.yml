@@ -101,6 +101,23 @@ functions:
     handler: handler.generateRawDiffReport
   generateSummaryReport:
     handler: handler.generateSummaryReport
+  greet:
+    runtime: python3.8
+    events:
+      - http:
+          method: get
+          path: greet
+          cors: true
+          authorizer: aws_iam
+    handler: lib/web_handler.greet
+  time:
+    events:
+      - http:
+          method: get
+          path: time
+          cors: true
+          authorizer: aws_iam
+    handler: api/time_handler.timestamp
 
 stepFunctions:
   stateMachines:

@@ -46,9 +46,9 @@ EOF
 
 #### Create/Update an email template
 ```
-aws ses create-template --cli-input-json file://email-templates/report-started.json --profile <aws_profile> --region us-east-1
+aws ses create-template --cli-input-json file://templates/report-started-email.json --profile <aws_profile> --region us-east-1
 
-aws ses update-template --cli-input-json file://email-templates/report-started.json --profile <aws_profile> --region us-east-1
+aws ses update-template --cli-input-json file://templates/report-started-email.json --profile <aws_profile> --region us-east-1
 ```
 
 

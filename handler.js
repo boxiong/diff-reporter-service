@@ -73,29 +73,3 @@ function generateReportStartedEmail(body) {
     })
   }
 }
-
-function generateEmailParams(body) {
-  const { email, requester, description, baseline_location, regression_location } = body
-  console.log(email, requester, description, baseline_location, regression_location)
-  if (!(email && requester && baseline_location && regression_location)) {
-    throw new Error('Missing parameters! Make sure to add parameters \'email\', \'requester\', \'baseline_location\', \'regression_location\'.')
-  }
-
-  return {
-    Source: myEmail,
-    Destination: { ToAddresses: [myEmail] },
-    ReplyToAddresses: [email],
-    Message: {
-      Body: {
-        Text: {
-          Charset: 'UTF-8',
-          Data: `Compare ${baseline_location} against ${regression_location}\n${description}`
-        }
-      },
-      Subject: {
-        Charset: 'UTF-8',
-        Data: `[Testing] A diff report has been requested by ${requester}`
-      }
-    }
-  }
-}
